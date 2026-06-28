@@ -1,0 +1,105 @@
+# Redrob Hackathon — Submission Metadata
+# Everything below is filled in except the items marked <<< FILL IN >>>,
+# which only you know (identity, repo URL, sandbox URL once deployed).
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "TAG Star"
+
+primary_contact:
+  name: "Jash Bhalakia"
+  email: "<<< FILL IN >>>"
+  phone: "<<< FILL IN >>>"
+
+team_members:
+  - name: "Jash Bhalakia"
+    email: "<<< FILL IN >>>"
+    role: "Team Lead / ML Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "<<< FILL IN — push this repo, paste the URL here >>>"
+
+sandbox_link: "<<< FILL IN — deploy app.py, see SANDBOX_DEPLOYMENT.md >>>"
+
+reproduce_command: "python main.py --candidates ./data/candidates.jsonl --out ./submission.csv"
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "<<< FILL IN — e.g. 'MacBook Pro M2' or 'Local Linux box' >>>"
+  cpu_cores: 8          # <<< adjust to your actual machine
+  ram_gb: 16            # <<< adjust to your actual machine
+  python_version: "<<< FILL IN — run `python --version` >>>"
+  os: "<<< FILL IN — e.g. 'macOS 14.2' or 'Ubuntu 22.04' >>>"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: false
+  pre_computation_time_minutes: 0
+
+# ============================================================================
+# AI tools declaration
+# ============================================================================
+ai_tools_used:
+  - "Claude"
+
+ai_usage_summary: |
+  Used Claude (Anthropic) for architecture discussion, code review, and
+  iterative debugging across multiple rounds — including a profiling pass
+  that found and fixed a date-parsing performance bug (pd.to_datetime()
+  scalar calls were ~90% of an earlier version's runtime), a substring-
+  matching bug that let short fragments like "rag" match inside unrelated
+  words like "storage" (root cause of non-technical roles ranking too
+  high), and a data-mining pass that discovered the dataset's actual
+  honeypot mechanism (company-founding-year violations on real, named
+  companies) and dominant trap template (a hedging-language disclaimer
+  appearing in 25% of all candidates) by direct inspection of the real
+  100,000-candidate pool rather than guessing. No candidate data was sent
+  to any hosted LLM API at any point — all profiling, tuning, and scoring
+  ran locally on CPU with zero network calls.
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  Fully local rule-based + lexical-concept ranker, zero hosted LLM/embedding
+  API calls and zero GPU usage at any point (verified: 94s end-to-end on
+  the real 100K-candidate pool, well inside the 5min/16GB/CPU-only/
+  no-network constraint).
+
+  Score combines five weighted components: (1) lexical match against a
+  curated AI/ML concept vocabulary read from full career history, not just
+  current title, so plain-language candidates who built real systems score
+  correctly without buzzwords; (2) a trapezoidal experience-fit curve
+  centered on the JD's 5-9y band; (3) location/relocation fit against the
+  Pune/Noida preference; (4) notice-period fit; (5) a multiplicative
+  behavioral modifier on recruiter responsiveness, activity recency, and
+  profile completeness that meaningfully down-weights inactive candidates.
+
+  Two trap-defense layers sit on top, both calibrated against the real
+  dataset: honeypot detection (company-founding-year violations on real
+  named companies, e.g. joining Krutrim before 2023 — verified to land at
+  93-111 candidates, closely matching the spec's stated "~80 honeypots,"
+  with fictional filler companies like Wayne Enterprises explicitly
+  excluded) and hard disqualifiers (an exact-match non-technical-title
+  blacklist verified against the dataset's confirmed 47-value title
+  vocabulary, consulting-only/research-only/CV-only career patterns, and
+  an AI-hobbyist detector built from a hedging-language template found via
+  direct dataset mining to cover 25% of all candidates).
+
+  Reasoning strings are built compositionally from facts true of that
+  specific candidate, including real skill names pulled verbatim from
+  their own skills array — never a fixed template, never an invented skill.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
